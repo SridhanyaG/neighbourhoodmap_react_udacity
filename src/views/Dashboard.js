@@ -22,7 +22,8 @@ class Dashboard extends Component {
 
   updateMap = obj => {
     this.setState({requestOptions: obj})
-    this.searchNearby()
+    this.searchNearby(obj)
+    document.getElementById('menuicon').click()
   }
 
   onMapReady = (mapProps, map) => {
@@ -30,11 +31,11 @@ class Dashboard extends Component {
       map: map,
       mapProps: mapProps
     })
-    this.searchNearby()
+    this.searchNearby(this.state.requestOptions)
   }
 
   
-  searchNearby = () => {
+  searchNearby = (requestOptions) => {
     const { google } = this.state.mapProps;
 
     const service = new google.maps.places.PlacesService(this.state.map);
@@ -42,8 +43,8 @@ class Dashboard extends Component {
     // Specify location, radius and place types for your Places API search.
     const request = {
       location: this.state.userLocation,
-      radius: this.state.requestOptions.range,
-      type: this.state.requestOptions.type
+      radius: requestOptions.range,
+      type: requestOptions.type
     };
 
     service.nearbySearch(request, (results, status) => {
@@ -57,7 +58,7 @@ class Dashboard extends Component {
             lat: plzObj.geometry.location.lat(), lng: plzObj.geometry.location.lng()
           }}
        });
-        this.setState({ places: tempArr });
+       this.setState({ places: tempArr });
       }
     });
   };
@@ -85,12 +86,16 @@ class Dashboard extends Component {
     let userLocation = this.state.userLocation
     return (
       <main className="container-fluid">
-        <nav className="map-nav-bar">
-          <a href="/">My Neighborhood</a>
-        </nav>
+          <nav className="navbar navbar-dark bg-dark">
+            <button id="menuicon" className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span className="navbar-toggler-icon"></span>
+            </button>
+          </nav>
         <div className="d-flex d-flex-row">
-          <SideNavBarSearchInput userLocation={userLocation} className="col-md-4" updateMap={this.updateMap}></SideNavBarSearchInput>
-          <div  className="col-md-8 map-container">
+          <div  className="collapse col-md-4 col-sm-12 px-2"  id="navbarToggleExternalContent" >
+           <SideNavBarSearchInput userLocation={userLocation}  updateMap={this.updateMap}></SideNavBarSearchInput>
+           </div>
+          <div  className="col map-container">
             <MapWithLocation places={this.state.places} userLocation={userLocation} mapReady={this.onMapReady}></MapWithLocation>
           </div>
         </div>        

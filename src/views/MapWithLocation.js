@@ -41,7 +41,6 @@ export class MapWithLocation extends Component {
     let zoom = this.state.zoom
     let userLocation = this.props.userLocation
     let nearByPlaces = this.props.places
-    console.log(nearByPlaces)
     return (
       <Map google={this.props.google} zoom={zoom}
         style={mapStyles}
