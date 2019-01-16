@@ -1,0 +1,13 @@
+.map-nav-bar {
+  background: #1c262f;
+  border-bottom: 1px solid #1c262f;
+  box-shadow: 0 2px 4px -2px rgba(0,0,0,.5);
+  color: #fff;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 15px;
+  padding-right: 15px;
+  height: 57px;
+}

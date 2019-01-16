@@ -1,52 +1,82 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types';
 import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
+import './css/mapwithlocation.css'
+
+const mapStyles = {
+  width: '100%',
+  height: '100%'
+};
 
 export class MapWithLocation extends Component {
+  static propTypes = {
+    userLocation: PropTypes.object,
+    mapReady: PropTypes.func.isRequired,
+    places: PropTypes.array
+  }
   state = {
-    userLocation: {
-      lat: 0,
-      lng: 0
-    },
-    zoom: 13,
-    loading: true
+    zoom: 15,
+    loading: true,
+    selectedPlace: {},
+    showingInfoWindow: false,
+    activeMarker: {}
   }
-  componentDidMount() {
-    this.getGeoLocation()
-  }
-
-  getGeoLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-          position => {
-              console.log(position.coords);
-              this.setState(prevState => ({
-                      userLocation: {
-                      ...prevState.currentLatLng,
-                      lat: position.coords.latitude,
-                      lng: position.coords.longitude
-                  },
-                  loading: false
-              }))
-          }
-      )
-    } else {
-        window.console.error("Maps need geolocation api we suggest to google chrome")
+  onMapClicked = (props) => {
+    if (this.state.showingInfoWindow) {
+      this.setState({
+        showingInfoWindow: false,
+        activeMarker: null
+      })
     }
-  }
+  };
+  onMarkerClick = (props, marker, e) =>
+    this.setState({
+      selectedPlace: props,
+      activeMarker: marker,
+      showingInfoWindow: true
+    });
+
 
   render() {
-    let {userLocation, zoom } = this.state
+    let zoom = this.state.zoom
+    let userLocation = this.props.userLocation
+    let nearByPlaces = this.props.places
+    console.log(nearByPlaces)
     return (
       <Map google={this.props.google} zoom={zoom}
-        center={userLocation}> 
+        style={mapStyles}
+        onReady={this.props.mapReady}
+        onClick={this.onMapClicked}
+        initialCenter={userLocation}> 
          <Marker
-            title={ 'Your position' }
-            name={ 'Your position' }
-            position={ userLocation }            
+            title={ 'Your Location' }
+            name={ 'Your Location' }
+            position={ userLocation }
+            icon={{
+              url: '/user-pin.png',
+            }}          
           />
-        <InfoWindow onClose={this.onInfoWindowClose}>
-            <div>
-              <h1>{'Hello'}</h1>
+         {
+              nearByPlaces.map((plz)=> (
+                <Marker
+                    key={plz.placeid}
+                    title={ plz.name }
+                    name={ plz.name }
+                    position={ plz.position }
+                    address = { plz.address}
+                    photoUrl = { plz.photoUrl }
+                    onClick={this.onMarkerClick}
+                  >
+                  </Marker>
+              ))
+            }
+          <InfoWindow
+          marker={this.state.activeMarker}
+          visible={this.state.showingInfoWindow}>
+            <div className="d-flex flex-row bd-highlight m-3 markerwindow">
+              <img className='mapimg' src={this.state.selectedPlace.photoUrl} alt={this.state.selectedPlace.name}/>
+              <div className="px-2"><h5>{this.state.selectedPlace.name}</h5>
+              <p>{this.state.selectedPlace.address}</p></div>
             </div>
         </InfoWindow>
       </Map>
