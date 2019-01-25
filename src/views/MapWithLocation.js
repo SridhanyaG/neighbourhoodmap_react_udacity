@@ -13,12 +13,13 @@ export class MapWithLocation extends Component {
     userLocation: PropTypes.object,
     mapReady: PropTypes.func.isRequired,
     places: PropTypes.array,
-    onMarkerMounted: PropTypes.func,
-    selectedPlace: PropTypes.object,
-    showingInfoWindow: PropTypes.bool,
-    activeMarker: PropTypes.object,
-    onMarkerClick: PropTypes.func,
-    onMapClicked: PropTypes.func
+    distance: PropTypes.string,
+    onMarkerMounted: PropTypes.func.isRequired,
+    selectedPlace: PropTypes.object.isRequired,
+    showingInfoWindow: PropTypes.bool.isRequired,
+    activeMarker: PropTypes.object.isRequired,
+    onMarkerClick: PropTypes.func.isRequired,
+    onMapClicked: PropTypes.func.isRequired
   }
   state = {
     zoom: 15,
@@ -65,7 +66,8 @@ export class MapWithLocation extends Component {
             <div className="d-flex flex-row bd-highlight m-3 markerwindow">
               <img className='mapimg' src={this.props.selectedPlace.photoUrl} alt={this.props.selectedPlace.name}/>
               <div className="px-2"><h5>{this.props.selectedPlace.name}</h5>
-              <p>{this.props.selectedPlace.address}</p></div>
+              <p>{this.props.selectedPlace.address}</p>
+              <p><em>Distance : </em>{this.props.distance}</p></div>
             </div>
         </InfoWindow>
       </Map>

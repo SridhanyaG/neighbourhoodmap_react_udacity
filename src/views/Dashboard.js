@@ -19,7 +19,9 @@ class Dashboard extends Component {
     markers: [],
     selectedPlace: {},
     showingInfoWindow: false,
-    activeMarker: {}
+    activeMarker: {},
+    placeService: null,
+    distance: 'Not Available'
   }
   componentDidMount() {
     this.getGeoLocation()
@@ -33,7 +35,31 @@ class Dashboard extends Component {
       })
     }
   };
+  getDistance = (destination) => {
+    const { google } = this.state.mapProps;
+    var distanceMatrixService = new google.maps.DistanceMatrixService;
+    distanceMatrixService.getDistanceMatrix({
+      origins: [this.state.userLocation],
+      destinations: [destination],
+      travelMode: google.maps.TravelMode['WALKING'],
+      unitSystem: google.maps.UnitSystem.IMPERIAL,
+    }, function(response, status) {
+      if (response.rows[0].elements[0].status === google.maps.DistanceMatrixStatus.OK) {
+        let info = response.rows[0].elements[0].distance.text
+        window.console.log(info)
+        this.setState({
+          distance: info
+        })
+      } else {
+        window.console.error(response);
+      }
+    }.bind(this));
+  }
   onMarkerClickFromList = (e) => {
+    if (this.refs.toggleIcon.offsetParent !== null) {
+      this.refs.toggleIcon.click()
+    }
+
     let plzid = e.target.getAttribute('data-place-id')
     let currentMkr = null
     for(let obj of this.state.markers) {
@@ -41,17 +67,21 @@ class Dashboard extends Component {
         currentMkr = obj
       }
     }
+    this.getDistance(currentMkr.address)
     this.setState({
       selectedPlace: currentMkr,
       activeMarker: currentMkr,
-      showingInfoWindow: true
+      showingInfoWindow: true,
+      distance: 'fetching....'
     });
   }
   onMarkerClick = (props, marker, e) => {
+    this.getDistance(marker.address)
     this.setState({
       selectedPlace: props,
       activeMarker: marker,
-      showingInfoWindow: true
+      showingInfoWindow: true,
+      distance: 'fetching....'
     });
   }
 
@@ -78,10 +108,17 @@ class Dashboard extends Component {
 
   
   searchNearby = (requestOptions) => {
+    let service, distanceService
     const { google } = this.state.mapProps;
-
-    const service = new google.maps.places.PlacesService(this.state.map);
-
+    if (this.state.placeService === null) {
+      service = new google.maps.places.PlacesService(this.state.map);
+      this.setState({
+        placeService: service,
+        distanceService: distanceService
+      })
+    }  else {
+      service = this.state.placeService
+    }
     // Specify location, radius and place types for your Places API search.
     const request = {
       location: this.state.userLocation,
@@ -129,7 +166,7 @@ class Dashboard extends Component {
     return (
       <main className="container-fluid">
           <nav className="navbar navbar-dark bg-dark">
-            <button id="menuicon" className="navbar-toggler d-block d-md-none" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+            <button id="menuicon" ref="toggleIcon" className="navbar-toggler d-block d-md-none" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
             </button>
             <h1 className="text-danger">My NeighborHood</h1>
@@ -147,7 +184,8 @@ class Dashboard extends Component {
             onMapClicked={this.onMapClicked.bind(this)}
             showingInfoWindow={this.state.showingInfoWindow}
             selectedPlace={this.state.selectedPlace}
-            activeMarker={this.state.activeMarker}></MapWithLocation>
+            activeMarker={this.state.activeMarker}
+            distance={this.state.distance}></MapWithLocation>
           </div>
         </div>        
       </main>
