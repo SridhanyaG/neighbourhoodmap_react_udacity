@@ -16,17 +16,50 @@ class Dashboard extends Component {
     requestOptions: {
       range: '500',
       type: 'A'},
-    markers: []
+    markers: [],
+    selectedPlace: {},
+    showingInfoWindow: false,
+    activeMarker: {}
   }
   componentDidMount() {
     this.getGeoLocation()
   }
 
+  onMapClicked = (props) => {
+    if (this.state.showingInfoWindow) {
+      this.setState({
+        showingInfoWindow: false,
+        activeMarker: null
+      })
+    }
+  };
+  onMarkerClickFromList = (e) => {
+    let plzid = e.target.getAttribute('data-place-id')
+    let currentMkr = null
+    for(let obj of this.state.markers) {
+      if (obj.identifier === plzid) {
+        currentMkr = obj
+      }
+    }
+    this.setState({
+      selectedPlace: currentMkr,
+      activeMarker: currentMkr,
+      showingInfoWindow: true
+    });
+  }
+  onMarkerClick = (props, marker, e) => {
+    this.setState({
+      selectedPlace: props,
+      activeMarker: marker,
+      showingInfoWindow: true
+    });
+  }
+
   onMarkerMounted  = (element) => {
     if (element !== null)
-  this.setState(prevState => ({
-    markers: [...prevState.markers, element.marker]
-  }))
+    this.setState(prevState => ({
+      markers: [...prevState.markers, element.marker]
+    }))
 }
 
   updateMap = obj => {
@@ -103,13 +136,18 @@ class Dashboard extends Component {
           </nav>
         <div className="d-flex d-flex-row">
           <div  className="collapse dont-collapse-sm col-md-4 col-sm-12 px-2"  id="navbarToggleExternalContent" >
-           <SideNavBarSearchInput userLocation={userLocation}  updateMap={this.updateMap}></SideNavBarSearchInput>
-           <ListBox places={this.state.places} invokerMarker={this.onMarkerMounted}></ListBox>
+           <SideNavBarSearchInput userLocation={userLocation}  updateMap={this.updateMap.bind(this)}></SideNavBarSearchInput>
+           <ListBox places={this.state.places} invokerMarker={this.onMarkerClickFromList.bind(this)}></ListBox>
            </div>
           <div  className="col map-container">
             <MapWithLocation places={this.state.places}
             onMarkerMounted={this.onMarkerMounted}
-            userLocation={userLocation} mapReady={this.onMapReady}></MapWithLocation>
+            userLocation={userLocation} mapReady={this.onMapReady.bind(this)}
+            onMarkerClick={this.onMarkerClick.bind(this)}
+            onMapClicked={this.onMapClicked.bind(this)}
+            showingInfoWindow={this.state.showingInfoWindow}
+            selectedPlace={this.state.selectedPlace}
+            activeMarker={this.state.activeMarker}></MapWithLocation>
           </div>
         </div>        
       </main>

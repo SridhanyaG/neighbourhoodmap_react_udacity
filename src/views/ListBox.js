@@ -16,8 +16,8 @@ class ListBox extends Component {
     return (
       <ul className="list-group">
       {
-        places.map((plz) => (<li key={plz.name} className="list-group-item list-group-item-action">
-        <a href="#donothing" className="b-btn" data-place-name={plz.name}
+        places.map((plz) => (<li key={plz.placeid} className="list-group-item list-group-item-action">
+        <a href="#donothing" className="b-btn" data-place-id={plz.placeid}
         onClick={this.invokeParentHandler} >{ plz.name }</a>
         </li>)
         )}

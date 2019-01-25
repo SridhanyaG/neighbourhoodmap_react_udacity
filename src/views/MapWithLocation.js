@@ -13,32 +13,18 @@ export class MapWithLocation extends Component {
     userLocation: PropTypes.object,
     mapReady: PropTypes.func.isRequired,
     places: PropTypes.array,
-    onMarkerMounted: PropTypes.func
+    onMarkerMounted: PropTypes.func,
+    selectedPlace: PropTypes.object,
+    showingInfoWindow: PropTypes.bool,
+    activeMarker: PropTypes.object,
+    onMarkerClick: PropTypes.func,
+    onMapClicked: PropTypes.func
   }
   state = {
     zoom: 15,
-    loading: true,
-    selectedPlace: {},
-    showingInfoWindow: false,
-    activeMarker: {},
-    markers: []
+    loading: true
   }
  
-  onMapClicked = (props) => {
-    if (this.state.showingInfoWindow) {
-      this.setState({
-        showingInfoWindow: false,
-        activeMarker: null
-      })
-    }
-  };
-  onMarkerClick = (props, marker, e) =>
-    this.setState({
-      selectedPlace: props,
-      activeMarker: marker,
-      showingInfoWindow: true
-    });
-
   render() {
     let zoom = this.state.zoom
     let userLocation = this.props.userLocation
@@ -47,7 +33,7 @@ export class MapWithLocation extends Component {
       <Map google={this.props.google} zoom={zoom}
         style={mapStyles}
         onReady={this.props.mapReady}
-        onClick={this.onMapClicked}
+        onClick={this.props.onMapClicked}
         initialCenter={userLocation}> 
          <Marker
             title={ 'Your Location' }
@@ -68,18 +54,18 @@ export class MapWithLocation extends Component {
                     position={ plz.position }
                     address = { plz.address}
                     photoUrl = { plz.photoUrl }
-                    onClick={this.onMarkerClick}
+                    onClick={this.props.onMarkerClick}
                   >
                   </Marker>
               ))
             }
           <InfoWindow
-          marker={this.state.activeMarker}
-          visible={this.state.showingInfoWindow}>
+          marker={this.props.activeMarker}
+          visible={this.props.showingInfoWindow}>
             <div className="d-flex flex-row bd-highlight m-3 markerwindow">
-              <img className='mapimg' src={this.state.selectedPlace.photoUrl} alt={this.state.selectedPlace.name}/>
-              <div className="px-2"><h5>{this.state.selectedPlace.name}</h5>
-              <p>{this.state.selectedPlace.address}</p></div>
+              <img className='mapimg' src={this.props.selectedPlace.photoUrl} alt={this.props.selectedPlace.name}/>
+              <div className="px-2"><h5>{this.props.selectedPlace.name}</h5>
+              <p>{this.props.selectedPlace.address}</p></div>
             </div>
         </InfoWindow>
       </Map>
