@@ -12,15 +12,18 @@ export class MapWithLocation extends Component {
   static propTypes = {
     userLocation: PropTypes.object,
     mapReady: PropTypes.func.isRequired,
-    places: PropTypes.array
+    places: PropTypes.array,
+    onMarkerMounted: PropTypes.func
   }
   state = {
     zoom: 15,
     loading: true,
     selectedPlace: {},
     showingInfoWindow: false,
-    activeMarker: {}
+    activeMarker: {},
+    markers: []
   }
+ 
   onMapClicked = (props) => {
     if (this.state.showingInfoWindow) {
       this.setState({
@@ -35,7 +38,6 @@ export class MapWithLocation extends Component {
       activeMarker: marker,
       showingInfoWindow: true
     });
-
 
   render() {
     let zoom = this.state.zoom
@@ -58,6 +60,8 @@ export class MapWithLocation extends Component {
          {
               nearByPlaces.map((plz)=> (
                 <Marker
+                    identifier={plz.placeid}
+                    ref={this.props.onMarkerMounted}
                     key={plz.placeid}
                     title={ plz.name }
                     name={ plz.name }

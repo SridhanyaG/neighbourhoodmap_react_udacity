@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import './css/dashboard.css'
 import SideNavBarSearchInput from './SideNavBarSearchInput'
 import MapWithLocation from './MapWithLocation'
+import ListBox from './ListBox'
 
 class Dashboard extends Component {
   state ={
@@ -14,11 +15,19 @@ class Dashboard extends Component {
     mapProps: null,
     requestOptions: {
       range: '500',
-      type: 'A'}
+      type: 'A'},
+    markers: []
   }
   componentDidMount() {
     this.getGeoLocation()
   }
+
+  onMarkerMounted  = (element) => {
+    if (element !== null)
+  this.setState(prevState => ({
+    markers: [...prevState.markers, element.marker]
+  }))
+}
 
   updateMap = obj => {
     this.setState({requestOptions: obj})
@@ -58,7 +67,7 @@ class Dashboard extends Component {
             lat: plzObj.geometry.location.lat(), lng: plzObj.geometry.location.lng()
           }}
        });
-       this.setState({ places: tempArr });
+       this.setState({ places: tempArr, markers: [] });
       }
     });
   };
@@ -87,16 +96,20 @@ class Dashboard extends Component {
     return (
       <main className="container-fluid">
           <nav className="navbar navbar-dark bg-dark">
-            <button id="menuicon" className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+            <button id="menuicon" className="navbar-toggler d-block d-md-none" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
             </button>
+            <h1 className="text-danger">My NeighborHood</h1>
           </nav>
         <div className="d-flex d-flex-row">
-          <div  className="collapse col-md-4 col-sm-12 px-2"  id="navbarToggleExternalContent" >
+          <div  className="collapse dont-collapse-sm col-md-4 col-sm-12 px-2"  id="navbarToggleExternalContent" >
            <SideNavBarSearchInput userLocation={userLocation}  updateMap={this.updateMap}></SideNavBarSearchInput>
+           <ListBox places={this.state.places} invokerMarker={this.onMarkerMounted}></ListBox>
            </div>
           <div  className="col map-container">
-            <MapWithLocation places={this.state.places} userLocation={userLocation} mapReady={this.onMapReady}></MapWithLocation>
+            <MapWithLocation places={this.state.places}
+            onMarkerMounted={this.onMarkerMounted}
+            userLocation={userLocation} mapReady={this.onMapReady}></MapWithLocation>
           </div>
         </div>        
       </main>

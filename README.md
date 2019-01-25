@@ -8,8 +8,14 @@
  -  in Project root folder create a .env file like below
  `REACT_APP_API_KEY =<Your Google Map APi Key>`
  - Or System Environment Variable
- - Now  npm install
- - and npm start
+ - For develement mode
+ `  npm install
+   npm start`
+
+ -For Production mode
+ `npm run build
+serve -s build`
+Server will give the key port url ex : http://localhost:5000 
 
 ### libraries Used
 `"google-maps-react": "^2.0.2",`
