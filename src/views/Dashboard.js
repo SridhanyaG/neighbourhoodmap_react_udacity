@@ -10,21 +10,32 @@ class Dashboard extends Component {
       lat: 0,
       lng: 0
     },
+    nearBy: '',
     places: [],
     map: null,
     mapProps: null,
     requestOptions: {
-      range: '500',
-      type: 'A'},
+      range: '750',
+      type: '4bf58dd8d48988d1e0931735' // category coffee shop
+    },
     markers: [],
     selectedPlace: {},
     showingInfoWindow: false,
     activeMarker: {},
     placeService: null,
-    distance: 'Not Available'
+    distance: 'Not Available',
+    foursquare: null
   }
+  // Fetch the Lat Lng of the current user
   componentDidMount() {
     this.getGeoLocation()
+    let foursquare = require('react-foursquare')({
+      clientID: process.env.REACT_APP_FOURSQUARE_CLIENT_ID,
+      clientSecret: process.env.REACT_APP_FOURSQUARE_CLIENT_SECRET 
+    });
+    this.setState({
+      foursquare: foursquare
+    })
   }
 
   onMapClicked = (props) => {
@@ -35,6 +46,7 @@ class Dashboard extends Component {
       })
     }
   };
+  // This is for infowindow show the miles
   getDistance = (destination) => {
     const { google } = this.state.mapProps;
     var distanceMatrixService = new google.maps.DistanceMatrixService;
@@ -55,6 +67,29 @@ class Dashboard extends Component {
       }
     }.bind(this));
   }
+
+  getPlaceDetails = (plzid) => {
+    this.state.foursquare.venues.getVenue({venue_id: plzid })
+      .then(res=> {
+      if (res.meta.code === 200) {
+        let size='110x110'
+        let photoUrl = null
+        if (res.response.venue.bestPhoto === undefined) {
+          photoUrl = 'http://www.historygrandrapids.org/imgs/4101/square/Theaters_html_5bd1fb5.jpg'
+        } else {
+          photoUrl=res.response.venue.bestPhoto.prefix+size+res.response.venue.bestPhoto.suffix
+        }
+        let name = res.response.venue.name
+        let address= res.response.venue.location.address
+        this.setState({
+          selectedPlace: {photoUrl: photoUrl, name: name, address: address}
+        })
+      } 
+      // Else default data from map marker is shown
+      });
+  }
+
+  // When user clicks the list then the info window would open
   onMarkerClickFromList = (e) => {
     if (this.refs.toggleIcon.offsetParent !== null) {
       this.refs.toggleIcon.click()
@@ -67,46 +102,74 @@ class Dashboard extends Component {
         currentMkr = obj
       }
     }
-    this.getDistance(currentMkr.address)
     this.setState({
       selectedPlace: currentMkr,
       activeMarker: currentMkr,
       showingInfoWindow: true,
       distance: 'fetching....'
     });
+    this.getPlaceDetails(plzid)
+    this.getDistance(currentMkr.address[0]) 
   }
+  // When marker icon in map is clicked then we would show infowindow
   onMarkerClick = (props, marker, e) => {
-    this.getDistance(marker.address)
     this.setState({
       selectedPlace: props,
       activeMarker: marker,
       showingInfoWindow: true,
       distance: 'fetching....'
     });
+    this.getDistance(marker.address[0])
+    this.getPlaceDetails(props.identifier)
   }
 
+  // Need to remembers the marker info so that we respond from list and map marker the correct info
   onMarkerMounted  = (element) => {
     if (element !== null)
     this.setState(prevState => ({
       markers: [...prevState.markers, element.marker]
     }))
-}
+  }
 
   updateMap = obj => {
     this.setState({requestOptions: obj})
-    this.searchNearby(obj)
+    this.searchPlacesUsingFourSquare(obj)
     document.getElementById('menuicon').click()
   }
 
+  // Only we need map is ready we can invoke services
   onMapReady = (mapProps, map) => {
     this.setState({
       map: map,
       mapProps: mapProps
     })
-    this.searchNearby(this.state.requestOptions)
+    this.searchPlacesUsingFourSquare(this.state.requestOptions)
   }
 
+  // Third party library Foursquare
+  searchPlacesUsingFourSquare = (requestOptions) => {  
+    var params = {
+      "ll": `${this.state.userLocation.lat},${this.state.userLocation.lng}`,
+      "categoryId": requestOptions.type,
+      "radius":  requestOptions.range,
+      "intent": "browse",
+    };
+    this.state.foursquare.venues.getVenues(params)
+      .then(res=> {
+        let plzs = []
+        if (res.meta.code === 200) {
+          let venues = res.response.venues
+          for (let plzObj of venues) {
+            plzs.push({placeid: plzObj.id, location: plzObj.location, name: plzObj.name})
+          }
+          this.setState({
+            places: plzs
+          })
+        }
+      });
+  }
   
+  // This uses google maps placeservice and it is no longer used.
   searchNearby = (requestOptions) => {
     let service, distanceService
     const { google } = this.state.mapProps;
@@ -146,7 +209,6 @@ class Dashboard extends Component {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
           position => {
-              console.log(position.coords);
               this.setState(prevState => ({
                       userLocation: {
                       ...prevState.currentLatLng,
