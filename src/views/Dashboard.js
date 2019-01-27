@@ -243,7 +243,10 @@ class Dashboard extends Component {
           }
       )
     } else {
-        window.console.error("Maps need geolocation api we suggest to google chrome")
+        window.console.error("Maps need geolocation api we suggest to use google chrome")
+        this.setState({
+          mapError: "Maps need geolocation api we suggest to use google chrome"
+        })
     }
   }
   render() {
