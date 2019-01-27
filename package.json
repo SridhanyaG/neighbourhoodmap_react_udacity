@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@google/maps": "^0.5.5",
     "axios": "^0.18.0",
     "bootstrap": "^4.2.1",
     "escape-string-regexp": "^1.0.5",

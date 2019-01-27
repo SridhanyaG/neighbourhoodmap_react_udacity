@@ -24,7 +24,9 @@ class Dashboard extends Component {
     activeMarker: {},
     placeService: null,
     distance: 'Not Available',
-    foursquare: null
+    foursquare: null,
+    timezone: '',
+    mapError: ''
   }
   // Fetch the Lat Lng of the current user
   componentDidMount() {
@@ -49,6 +51,7 @@ class Dashboard extends Component {
   // This is for infowindow show the miles
   getDistance = (destination) => {
     const { google } = this.state.mapProps;
+    
     var distanceMatrixService = new google.maps.DistanceMatrixService;
     distanceMatrixService.getDistanceMatrix({
       origins: [this.state.userLocation],
@@ -141,7 +144,7 @@ class Dashboard extends Component {
   onMapReady = (mapProps, map) => {
     this.setState({
       map: map,
-      mapProps: mapProps
+      mapProps: mapProps,
     })
     this.searchPlacesUsingFourSquare(this.state.requestOptions)
   }
@@ -209,6 +212,26 @@ class Dashboard extends Component {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
           position => {
+            const googleMapsClient = require('@google/maps').createClient({
+              key: process.env.REACT_APP_API_KEY,
+              Promise: Promise
+            });
+            googleMapsClient.timezone({
+              location: {lat: position.coords.latitude,
+                lng: position.coords.longitude},
+              timestamp: new Date()
+            })
+            .asPromise()
+            .then((response) => {
+              this.setState({
+                timezone: response.json.timeZoneId + ' '+response.json.timeZoneName
+              })
+            })
+            .catch((err) => {
+              this.setState({
+                mapError: 'Error: Map loading failed. Check API key or quota. '+err.json.errorMessage
+              })
+            });
               this.setState(prevState => ({
                       userLocation: {
                       ...prevState.currentLatLng,
@@ -227,11 +250,13 @@ class Dashboard extends Component {
     let userLocation = this.state.userLocation
     return (
       <main className="container-fluid">
+         <h1 className="text-danger">{this.state.mapError}</h1>
           <nav className="navbar navbar-dark bg-dark">
             <button id="menuicon" ref="toggleIcon" className="navbar-toggler d-block d-md-none" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
             </button>
-            <h1 className="text-danger">My NeighborHood</h1>
+            <h1 className="text-danger">My NeighborHood></h1>
+            <p className="text-muted">You are in timezone:{this.state.timezone}</p>
           </nav>
         <div className="d-flex d-flex-row">
           <div  className="collapse dont-collapse-sm col-md-4 col-sm-12 px-2"  id="navbarToggleExternalContent" >
