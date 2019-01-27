@@ -41,7 +41,9 @@ export class MapWithLocation extends Component {
     }
      return (
       <Map google={this.props.google} zoom={zoom}
+        role="application"
         style={mapStyles}
+        aria-label="Map with markers"
         onReady={this.props.mapReady}
         onClick={this.props.onMapClicked}
         initialCenter={userLocation}> 
@@ -59,7 +61,7 @@ export class MapWithLocation extends Component {
                     identifier={plz.placeid}
                     ref={this.props.onMarkerMounted}
                     key={plz.placeid}
-                    title={ plz.name }
+                    title={ plz.name + ' clicking can view more details' }
                     name={ plz.name }
                     position={ plz.location.labeledLatLngs[0] }
                     address = { plz.location.formattedAddress}
@@ -69,6 +71,7 @@ export class MapWithLocation extends Component {
               ))
             }
           <InfoWindow
+          aria-label="{this.props.selectedPlace.name} +' is in '+ {this.props.selectedPlace.address}"
           marker={this.props.activeMarker}
           visible={this.props.showingInfoWindow}>
             <div className="d-flex flex-row bd-highlight m-3 markerwindow">

@@ -250,13 +250,13 @@ class Dashboard extends Component {
     let userLocation = this.state.userLocation
     return (
       <main className="container-fluid">
-         <h1 className="text-danger">{this.state.mapError}</h1>
-          <nav className="navbar navbar-dark bg-dark">
+         <h1 className="text-danger" aria-live="assertive">{this.state.mapError}</h1>
+          <nav className="navbar navbar-dark bg-dark" aria-label="Side Nav Bar Menu to search given type and radius">
             <button id="menuicon" ref="toggleIcon" className="navbar-toggler d-block d-md-none" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
             </button>
             <h1 className="text-danger">My NeighborHood></h1>
-            <p className="text-muted">You are in timezone:{this.state.timezone}</p>
+            <p className="text-muted" aria-live="assertive">You are in timezone:{this.state.timezone}</p>
           </nav>
         <div className="d-flex d-flex-row">
           <div  className="collapse dont-collapse-sm col-md-4 col-sm-12 px-2"  id="navbarToggleExternalContent" >

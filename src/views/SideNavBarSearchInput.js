@@ -67,7 +67,7 @@ class SideNavBar extends Component {
     <section>
     <div className="form-group">
       <label htmlFor="placeType">Select Type of Search:</label>
-      <select className="form-control" id="placeType" value={this.state.type} onChange={this.changeType}>
+      <select placeholder='Choose a Type like ATM etc' title='Type can be like ATM, Bus Station, etc' className="form-control" id="placeType" value={this.state.type} onChange={this.changeType}>
         {options}
       </select>
     </div>
@@ -75,25 +75,25 @@ class SideNavBar extends Component {
       <label htmlFor="address">Select Address Radius:</label>
       <div className="form-check">
         <label className="form-check-label">
-          <input type="radio" className="form-check-input" name="kmrange" value="750" checked={this.state.range === '750'} 
+          <input type="radio" title='radius of search'  className="form-check-input" name="kmrange" value="750" checked={this.state.range === '750'} 
                                   onChange={this.onRangeChanged}  />750
         </label>
       </div>
       <div className="form-check">
         <label className="form-check-label">
-          <input type="radio" className="form-check-input" name="kmrange"  value="1000"  checked={this.state.range === '1000'}  
+          <input type="radio" title='radius of search' className="form-check-input" name="kmrange"  value="1000"  checked={this.state.range === '1000'}  
           onChange={this.onRangeChanged} />1000
         </label>
       </div>
       <div className="form-check">
         <label className="form-check-label">
-          <input type="radio" className="form-check-input" name="kmrange"  value="1250"  checked={this.state.range === '1250'} 
+          <input type="radio" title='radius of search' className="form-check-input" name="kmrange"  value="1250"  checked={this.state.range === '1250'} 
           onChange={this.onRangeChanged} />1250
         </label>
       </div>
       </div>
       <div  className="form-group">
-      <button type="button" className="btn btn-secondary" onClick={this.loadMap}>Search</button>
+      <button type="button" title='Searches in given type and radius'  className="btn btn-secondary" onClick={this.loadMap}>Search</button>
       </div>
       </section>
     );
