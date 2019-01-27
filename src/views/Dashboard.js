@@ -258,7 +258,7 @@ class Dashboard extends Component {
             <button id="menuicon" ref="toggleIcon" className="navbar-toggler d-block d-md-none" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
               <span className="navbar-toggler-icon"></span>
             </button>
-            <h1 className="text-danger">My NeighborHood></h1>
+            <h1 className="text-danger">My NeighborHood</h1>
             <p className="text-muted" aria-live="assertive">You are in timezone:{this.state.timezone}</p>
           </nav>
         <div className="d-flex d-flex-row">
